@@ -1,0 +1,32 @@
+# ==========================================================================
+# ResNet-50 基线配置
+# 训练命令：python -m ml.train --config ml/configs/resnet50.yaml
+# ==========================================================================
+model: resnet50
+display_name: ResNet-50
+
+# --- 数据 ---
+data_root: data/flowers-102
+image_size: 224
+batch_size: 32
+num_workers: 0
+
+# --- 优化 ---
+epochs: 60
+lr_backbone: 1.0e-4
+lr_head: 1.0e-3
+weight_decay: 0.05
+label_smoothing: 0.1
+grad_clip: 1.0
+warmup_epochs: 3          # 前 3 epoch 冻结主干，只训分类头
+patience: 10              # val Top-1 连续 10 epoch 不提升则早停
+eta_min: 1.0e-6
+
+# --- 增强 ---
+strong: false             # 调优回路第 1 步可置 true（RandAugment + RandomErasing）
+
+# --- 其它 ---
+seed: 42
+device: auto
+grad_accum: 1
+out_dir: ml/outputs

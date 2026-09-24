@@ -1,0 +1,46 @@
+# ============ Python ============
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ============ 环境与密钥（绝不入库） ============
+.env
+
+# ============ 缓存（重定向到项目内，体积大） ============
+.cache/
+
+# ============ 数据集与模型权重（体积大，不入库） ============
+data/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+
+# 训练输出：只保留图表与指标汇总（报告资产，体积小），其余不入库
+ml/outputs/*
+!ml/outputs/figures/
+!ml/outputs/metrics.json
+!ml/outputs/dataset_stats.json
+!ml/outputs/class_names.json
+
+# ============ 后端运行时产物 ============
+backend/app/uploads/
+*.db
+*.sqlite3
+backend/logs/
+
+# ============ 前端 ============
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-error.log*
+
+# ============ 编辑器 / 系统 ============
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

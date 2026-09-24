@@ -1,0 +1,32 @@
+# ==========================================================================
+# ViT-B/16 配置（冲最优指标；8 GB 显存用 batch 16 + 梯度累积 2 = 等效 32）
+# 训练命令：python -m ml.train --config ml/configs/vit_b16.yaml
+# 显存不足时的降级顺序：
+#   1) batch_size: 8, grad_accum: 4
+#   2) image_size: 192
+#   3) 改用 convnext_tiny
+# ==========================================================================
+model: vit_b16
+display_name: ViT-B/16
+
+data_root: data/flowers-102
+image_size: 224
+batch_size: 16
+num_workers: 0
+grad_accum: 2
+
+epochs: 40                 # ViT 在 10-shot 场景收敛更快，40 epoch 足够
+lr_backbone: 3.0e-5
+lr_head: 1.0e-3
+weight_decay: 0.05
+label_smoothing: 0.1
+grad_clip: 1.0
+warmup_epochs: 3
+patience: 10
+eta_min: 1.0e-6
+
+strong: false
+
+seed: 42
+device: auto
+out_dir: ml/outputs

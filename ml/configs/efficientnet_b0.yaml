@@ -1,0 +1,28 @@
+# ==========================================================================
+# EfficientNet-B0 配置（参数量最小，性价比最高）
+# 训练命令：python -m ml.train --config ml/configs/efficientnet_b0.yaml
+# ==========================================================================
+model: efficientnet_b0
+display_name: EfficientNet-B0
+
+data_root: data/flowers-102
+image_size: 224
+batch_size: 32
+num_workers: 0
+
+epochs: 60
+lr_backbone: 1.0e-4
+lr_head: 1.0e-3
+weight_decay: 0.05
+label_smoothing: 0.1
+grad_clip: 1.0
+warmup_epochs: 3
+patience: 10
+eta_min: 1.0e-6
+
+strong: false
+
+seed: 42
+device: auto
+grad_accum: 1
+out_dir: ml/outputs

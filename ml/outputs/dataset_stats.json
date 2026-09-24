@@ -1,0 +1,37 @@
+{
+  "source": "hf-mirror:dpdl-benchmark/oxford_flowers102",
+  "num_classes": 102,
+  "class_names_match_source": true,
+  "totals": {
+    "train": 1020,
+    "val": 1020,
+    "test": 6149
+  },
+  "expected": {
+    "train": 1020,
+    "val": 1020,
+    "test": 6149
+  },
+  "per_class": {
+    "train": {
+      "min": 10,
+      "max": 10,
+      "mean": 10.0
+    },
+    "val": {
+      "min": 10,
+      "max": 10,
+      "mean": 10.0
+    },
+    "test": {
+      "min": 20,
+      "max": 238,
+      "mean": 60.28
+    }
+  },
+  "classes_present": {
+    "train": 102,
+    "val": 102,
+    "test": 102
+  }
+}
