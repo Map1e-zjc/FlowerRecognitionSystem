@@ -256,14 +256,21 @@ def progress_enabled() -> bool:
         return False
 
 
-def make_bar(*, total: int | None = None, desc: str = "", **kwargs):
-    """统一的 tqdm 工厂：非交互环境自动禁用（见 :func:`progress_enabled`）。"""
+def make_bar(iterable=None, *, total: int | None = None, desc: str = "", **kwargs):
+    """统一的 tqdm 工厂：非交互环境自动禁用（见 :func:`progress_enabled`）。
+
+    两种用法都支持：
+
+    * ``for x in make_bar(loader, total=len(loader), desc="推理")`` —— 直接迭代；
+    * ``bar = make_bar(total=n, desc="...")`` 然后 ``for x in loader: bar.update(1)``。
+    """
     from tqdm import tqdm
 
     kwargs.setdefault("ncols", 100)
     kwargs.setdefault("leave", False)
     kwargs.setdefault("dynamic_ncols", False)
-    return tqdm(total=total, desc=desc, disable=not progress_enabled(), **kwargs)
+    return tqdm(iterable, total=total, desc=desc,
+                disable=not progress_enabled(), **kwargs)
 
 
 # --------------------------------------------------------------------------

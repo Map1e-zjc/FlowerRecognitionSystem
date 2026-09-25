@@ -80,14 +80,13 @@ def collect_predictions(model, loader, device, *, use_amp: bool):
     """返回 (logits, targets) 两个 numpy 数组。"""
     all_logits: list[np.ndarray] = []
     all_targets: list[np.ndarray] = []
-    bar = make_bar(total=len(loader), desc="推理")
+    bar = make_bar(loader, total=len(loader), desc="推理")
     for images, targets in bar:
         images = images.to(device, non_blocking=True)
         with torch.autocast(device_type=device.type, enabled=use_amp):
             logits = model(images)
         all_logits.append(logits.float().cpu().numpy())
         all_targets.append(targets.numpy())
-        bar.update(1)
     bar.close()
     return np.concatenate(all_logits), np.concatenate(all_targets)
 
