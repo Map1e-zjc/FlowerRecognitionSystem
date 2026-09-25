@@ -1,0 +1,53 @@
+:root {
+  --brand: #2f7d4f;
+  --brand-light: #e8f5ee;
+  --text-muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f7fa;
+  color: #1f2937;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+
+.page-title {
+  margin: 4px 0 4px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin: 0 0 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.empty-field {
+  color: #b9bec7;
+}
+
+.el-card {
+  border-radius: 10px;
+}

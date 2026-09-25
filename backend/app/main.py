@@ -12,8 +12,9 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api import api_router
@@ -147,3 +148,60 @@ def healthz() -> dict:
         info["model_error"] = f"{type(exc).__name__}: {exc}"
 
     return ok(info)
+
+
+# ---------------------------------------------------------------------------
+# 生产模式：托管前端构建产物（单端口演示）
+#
+# 为什么把它作为推荐的演示方式：
+#   1. 单端口访问，答辩现场只需打开一个地址；
+#   2. 前后端同源，不需要 CORS 与 Vite 代理，**断网也能完整演示**；
+#   3. 运行期完全不依赖 Node/Vite/esbuild —— 这在本机尤其重要，
+#      因为 esbuild 需要管道 stdio 的子进程，受限环境下会被拒绝（docs/05 §7.7）。
+# 开发期仍可用 `vite dev`（5173）+ 代理，两者互不影响。
+# ---------------------------------------------------------------------------
+FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
+
+# 这些前缀属于后端自己的命名空间，**绝不能**落到 SPA 回退上，
+# 否则一个不存在的 API 路径会返回 200 + index.html，把接口错误伪装成成功。
+_RESERVED_PREFIXES = (
+    "api/", "static/", "uploads/", "figures/",
+    "docs", "redoc", "openapi.json", "healthz",
+)
+
+
+def _register_spa() -> bool:
+    if not (FRONTEND_DIST / "index.html").is_file():
+        log.info(
+            "未找到前端构建产物（%s），本次仅提供后端 API。"
+            "如需单端口演示，请先执行：scripts\\frontend.ps1 -Action build",
+            FRONTEND_DIST,
+        )
+        return False
+
+    assets_dir = FRONTEND_DIST / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="spa-assets")
+
+    dist_root = FRONTEND_DIST.resolve()
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str) -> FileResponse:
+        """history 模式下把前端路由交给 index.html；真实存在的静态文件直接返回。"""
+        normalized = full_path.lstrip("/")
+        if normalized.startswith(_RESERVED_PREFIXES):
+            raise HTTPException(status_code=404, detail="Not Found")
+
+        if normalized:
+            candidate = (dist_root / normalized).resolve()
+            # 防目录穿越：目标必须仍在 dist 目录之内
+            if dist_root in candidate.parents and candidate.is_file():
+                return FileResponse(candidate)
+
+        return FileResponse(dist_root / "index.html")
+
+    log.info("前端构建产物已托管：%s → /（单端口演示模式，无需 Vite）", FRONTEND_DIST)
+    return True
+
+
+SPA_ENABLED = _register_spa()
