@@ -273,16 +273,23 @@ def main(argv: list[str] | None = None) -> int:
         log(f"  class {cid:3d} {names[cid]:28s} acc={per_class[cid] * 100:5.1f}%  n={int(support[cid])}")
 
     # ---- 混淆对 ----
-    np.fill_diagonal(cm, 0)
-    flat = np.dstack(np.unravel_index(np.argsort(cm.ravel())[::-1], cm.shape))[0]
+    # 重要：在**副本**上把对角线清零来筛"最易混淆对"。
+    # 早期版本直接 np.fill_diagonal(cm, 0) 原地改，导致后续保存的 confusion_matrix
+    # 与绘制的混淆矩阵图**对角线全是 0**（看起来像"没有任何正确预测"），
+    # 是一个被 pytest 断言 sum(diag)==正确数 才发现的严重可视化错误。
+    cm_errors = cm.copy()
+    np.fill_diagonal(cm_errors, 0)
+    flat = np.dstack(np.unravel_index(np.argsort(cm_errors.ravel())[::-1], cm_errors.shape))[0]
     pairs = [
         {
             "true_id": int(t), "true_name": names[int(t)],
             "pred_id": int(p), "pred_name": names[int(p)],
-            "count": int(cm[t, p]),
+            "count": int(cm_errors[t, p]),
         }
-        for t, p in flat[:15] if cm[t, p] > 0
+        for t, p in flat[:15] if cm_errors[t, p] > 0
     ]
+    correct = int(np.trace(cm))
+    log(f"正确预测 {correct} / {len(targets)}（对角线之和 = {correct}，应与 Top-1 命中数一致）")
     log("Top 混淆对（真实 → 误判）：")
     for pr in pairs[:10]:
         log(f"  {pr['true_name']:28s} → {pr['pred_name']:28s} {pr['count']:4d} 次")

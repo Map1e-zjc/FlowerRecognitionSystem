@@ -13,7 +13,10 @@ __pycache__/
 .cache/
 
 # ============ 数据集与模型权重（体积大，不入库） ============
-data/
+# 注意：必须写成 /data/ 锚定到仓库根！
+# 若写成 data/，会匹配任意层级的 data 目录，从而把
+# backend/app/data/flowers.json（102 条人工整理的百科数据）一起忽略掉（已踩过）。
+/data/
 *.pth
 *.pt
 *.ckpt
